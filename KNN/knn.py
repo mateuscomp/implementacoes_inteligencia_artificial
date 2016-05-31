@@ -8,7 +8,6 @@ def distance(p, q):
     
     return sqrt((a + b + c + d))
 
-
 def read_trainning_file(name_file, separator_char):
     lista = []
     
@@ -24,14 +23,12 @@ def read_trainning_file(name_file, separator_char):
     return lista
 
 def write_answer(rotule):
-    answer_file = open('resultado.csv', 'a')
-    answer_file.write(content + "\n")
+    answer_file = open('resultado.txt', 'a')
+    answer_file.write(rotule + "\n")
     answer_file.close()
 
 def neighborhood(trainning_list, test, size_max):
     neighbor = []
-    #print("Get a trainning list that size is " + str(len(trainning_list)))
-
     for trainning in trainning_list:
         if(len(neighbor) > 0):
             index_of_insert = len(neighbor)
@@ -56,20 +53,54 @@ def to_rank(trainning_list, test, k):
 
     # Defining neighbor
     neighbors = neighborhood(trainning_list, test, k)
-    # print "K = " + str(k) + " neighbors of (" + str(test) + ") are: " + str(neighbors) + "\n\n"
 
     count_per_rotule = {}
     for neigh in neighbors:
         try:
             count_of_rotule = count_per_rotule[neigh[index_of_rotule][0]]
             count_of_rotule +=1
-            count_per_rotule.update({neigh[index_of_rotule][0] : count_of_rotule}) 
+            count_per_rotule.update({neigh[index_of_rotule][0] : count_of_rotule})
         except KeyError as ke:
             count_per_rotule.update({neigh[index_of_rotule][0] : 1})
 
     print count_per_rotule
+
+    key_eligible = None
+    value_eligible = None
+    for key in count_per_rotule.keys():
+        if((key_eligible == None) or (count_per_rotule[key] > value_eligible)):
+            key_eligible = key
+            value_eligible = count_per_rotule[key]
+
+    write_answer(str(key_eligible))
+
+def read_response_file_and_test_rotule_file(name_file_01, name_file_02):
+    response_file = open(name_file_01, 'r')
+    rotule_file = open(name_file_02, 'r')
     
+    size_lines_rotule_file = 45.0
+    counter = 0.0
+
+    line_response_file = response_file.readline()
+    #print "Value response_file: " + line_response_file
+
+    line_rotule_file = rotule_file.readline()
+    #print "Value rotule_file: " + line_rotule_file
+
+    while(line_response_file != "") and (line_rotule_file != ""):
+        #print "Response File: " + str(line_response_file) + "   Rotule File: " + str(line_rotule_file)
+        if (int(line_response_file) == int(line_rotule_file)):
+            counter = counter + 1
+
+        line_response_file = response_file.readline()
+        line_rotule_file = rotule_file.readline()
         
+    response_file.close()
+    rotule_file.close()
+
+    v = float(counter)
+    value = (v / size_lines_rotule_file)*100
+    return value
 
 # main
 def main():
@@ -85,6 +116,8 @@ def main():
         test_data = test_file.readline()
 
     # write_hit_percentage()
+    percentage = read_response_file_and_test_rotule_file('resultado.txt', 'rotulos-teste.txt')
+    print str(percentage) + "%"
 
 if __name__ == "__main__":
     main()
